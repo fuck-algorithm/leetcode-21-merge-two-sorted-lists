@@ -12,6 +12,7 @@ interface UseAlgorithmStateReturn {
   togglePlayPause: () => void;
   reset: () => void;
   setInputArrays: (l1: number[], l2: number[]) => void;
+  seekTo: (step: number) => void;
 }
 
 export function useAlgorithmState(
@@ -81,6 +82,11 @@ export function useAlgorithmState(
     setL2(newL2);
   }, []);
 
+  const seekTo = useCallback((step: number) => {
+    const clampedStep = Math.max(0, Math.min(step, steps.length - 1));
+    setCurrentStep(clampedStep);
+  }, [steps.length]);
+
   return {
     currentStep,
     isPlaying,
@@ -90,7 +96,8 @@ export function useAlgorithmState(
     goToPrevious,
     togglePlayPause,
     reset,
-    setInputArrays
+    setInputArrays,
+    seekTo
   };
 }
 

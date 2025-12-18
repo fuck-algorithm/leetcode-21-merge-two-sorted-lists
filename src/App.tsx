@@ -20,7 +20,8 @@ function App() {
     goToPrevious,
     togglePlayPause,
     reset,
-    setInputArrays
+    setInputArrays,
+    seekTo
   } = useAlgorithmState([1, 2, 4], [1, 3, 4]);
 
   return (
@@ -58,6 +59,7 @@ function App() {
             onNext={goToNext}
             onPlayPause={togglePlayPause}
             onReset={reset}
+            onSeek={seekTo}
           />
         </div>
       </main>

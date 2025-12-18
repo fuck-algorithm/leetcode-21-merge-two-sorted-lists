@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import './ControlPanel.css';
 
 interface ControlPanelProps {
@@ -9,6 +9,7 @@ interface ControlPanelProps {
   onNext: () => void;
   onPlayPause: () => void;
   onReset: () => void;
+  onSeek?: (step: number) => void;
 }
 
 export function ControlPanel({
@@ -18,9 +19,58 @@ export function ControlPanel({
   onPrevious,
   onNext,
   onPlayPause,
-  onReset
+  onReset,
+  onSeek
 }: ControlPanelProps) {
-  
+  const progressRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const calculateStepFromPosition = useCallback((clientX: number) => {
+    if (!progressRef.current) return currentStep;
+    const rect = progressRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(1, x / rect.width));
+    return Math.round(percentage * (totalSteps - 1));
+  }, [totalSteps, currentStep]);
+
+  const handleProgressClick = useCallback((e: React.MouseEvent) => {
+    if (onSeek) {
+      const newStep = calculateStepFromPosition(e.clientX);
+      onSeek(newStep);
+    }
+  }, [calculateStepFromPosition, onSeek]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    if (onSeek) {
+      const newStep = calculateStepFromPosition(e.clientX);
+      onSeek(newStep);
+    }
+  }, [calculateStepFromPosition, onSeek]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (onSeek) {
+        const newStep = calculateStepFromPosition(e.clientX);
+        onSeek(newStep);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, calculateStepFromPosition, onSeek]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // 防止在输入框中触发
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -87,6 +137,26 @@ export function ControlPanel({
       </div>
       <div className="step-info">
         步骤: {currentStep + 1} / {totalSteps}
+      </div>
+      
+      <div 
+        className={`progress-bar-container ${isDragging ? 'dragging' : ''}`}
+        ref={progressRef}
+        onClick={handleProgressClick}
+        onMouseDown={handleMouseDown}
+      >
+        <div 
+          className="progress-bar-track"
+        >
+          <div 
+            className="progress-bar-fill"
+            style={{ width: `${totalSteps > 1 ? (currentStep / (totalSteps - 1)) * 100 : 0}%` }}
+          />
+          <div 
+            className="progress-bar-thumb"
+            style={{ left: `${totalSteps > 1 ? (currentStep / (totalSteps - 1)) * 100 : 0}%` }}
+          />
+        </div>
       </div>
     </div>
   );

@@ -61,3 +61,62 @@
   color: #a0aec0;
   font-size: 0.875rem;
 }
+
+.progress-bar-container {
+  width: 100%;
+  padding: 8px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.progress-bar-container.dragging {
+  cursor: grabbing;
+}
+
+.progress-bar-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #4b5563;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #22c55e 100%);
+  border-radius: 4px;
+  transition: width 0.1s ease;
+}
+
+.progress-bar-container.dragging .progress-bar-fill {
+  transition: none;
+}
+
+.progress-bar-thumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: #22c55e;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: left 0.1s ease, transform 0.15s ease;
+}
+
+.progress-bar-container.dragging .progress-bar-thumb {
+  transition: transform 0.15s ease;
+}
+
+.progress-bar-container:hover .progress-bar-thumb {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.progress-bar-container.dragging .progress-bar-thumb {
+  transform: translate(-50%, -50%) scale(1.3);
+}
