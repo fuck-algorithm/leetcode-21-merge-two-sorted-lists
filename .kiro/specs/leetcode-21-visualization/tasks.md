@@ -1,0 +1,128 @@
+# Implementation Plan
+
+- [x] 1. Initialize project structure
+  - [x] 1.1 Create Vite + React + TypeScript project
+    - Initialize with `npm create vite@latest` using react-ts template
+    - Configure port 55032 in vite.config.ts
+    - _Requirements: 8.1_
+  - [x] 1.2 Install dependencies
+    - Install D3.js, Prism.js for syntax highlighting
+    - Install Vitest and fast-check for testing
+    - _Requirements: 3.1_
+  - [x] 1.3 Set up project structure
+    - Create directories: components/, utils/, types/, assets/
+    - Create base type definitions in types/index.ts
+    - _Requirements: All_
+
+- [x] 2. Implement core algorithm and step generator
+  - [x] 2.1 Implement ListNode and utility functions
+    - Create ListNode interface with id, val, next
+    - Implement arrayToList and listToArray converters
+    - _Requirements: 5.1_
+  - [x] 2.2 Implement mergeTwoLists algorithm
+    - Write the merge algorithm matching LeetCode solution
+    - _Requirements: 5.4_
+  - [x] 2.3 Write property test for merge correctness
+    - **Property 6: Merge Result Correctness**
+    - **Validates: Requirements 5.4**
+  - [x] 2.4 Implement StepGenerator
+    - Generate AlgorithmStep array with line numbers, variables, and states
+    - Track pointer positions and highlighted nodes
+    - _Requirements: 3.2, 3.3, 5.2_
+
+- [x] 3. Implement Header component
+  - [x] 3.1 Create Header with title and links
+    - Display "21. 合并两个有序链表" as clickable link to LeetCode
+    - Add GitHub icon in top-right corner linking to repository
+    - _Requirements: 1.1, 1.2, 2.1, 2.2_
+
+- [x] 4. Implement Code Panel component
+  - [x] 4.1 Create CodePanel with syntax highlighting
+    - Display Java algorithm code with Prism.js highlighting
+    - _Requirements: 3.1_
+  - [x] 4.2 Implement line highlighting
+    - Highlight current executing line based on step state
+    - _Requirements: 3.2_
+  - [x] 4.3 Implement variable value display
+    - Show variable values inline after corresponding code lines
+    - Handle multiple variables on same line with comma separation
+    - _Requirements: 3.3, 3.4_
+  - [x] 4.4 Write property test for line highlighting consistency
+    - **Property 3: Code Line Highlighting Consistency**
+    - **Validates: Requirements 3.2**
+  - [x] 4.5 Write property test for variable display completeness
+    - **Property 4: Variable Display Completeness**
+    - **Validates: Requirements 3.3**
+
+- [x] 5. Implement Control Panel component
+  - [x] 5.1 Create ControlPanel with buttons
+    - Add Previous, Next, Play/Pause, Reset buttons
+    - Display keyboard shortcut hints on buttons (←, →, Space)
+    - _Requirements: 4.4_
+  - [x] 5.2 Implement keyboard shortcuts
+    - Bind Left Arrow to previous step
+    - Bind Right Arrow to next step
+    - Bind Space to play/pause toggle
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [x] 5.3 Write property test for step navigation
+    - **Property 1: Step Navigation Consistency**
+    - **Validates: Requirements 4.1, 4.2**
+  - [x] 5.4 Write property test for play/pause toggle
+    - **Property 2: Play/Pause Toggle Round-Trip**
+    - **Validates: Requirements 4.3**
+
+- [x] 6. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Implement Visualization Panel with D3.js
+  - [x] 7.1 Create base Visualization component
+    - Set up D3.js SVG container
+    - Define layout for l1, l2, and merged lists
+    - _Requirements: 5.1_
+  - [x] 7.2 Implement linked list node rendering
+    - Render nodes with values and pointer arrows
+    - Show comparison indicators for current nodes
+    - _Requirements: 5.5_
+  - [x] 7.3 Implement node highlighting
+    - Highlight selected node during merge operation
+    - _Requirements: 5.3_
+  - [x] 7.4 Implement pointer animation
+    - Animate pointer movement during step transitions
+    - _Requirements: 5.2_
+  - [x] 7.5 Write property test for visualization state consistency
+    - **Property 5: Linked List Visualization State Consistency**
+    - **Validates: Requirements 5.1, 5.3**
+
+- [x] 8. Implement Floating Ball component
+  - [x] 8.1 Download and add QR code image
+    - Download image from provided URL to assets/
+    - _Requirements: 6.3_
+  - [x] 8.2 Create FloatingBall component
+    - Display floating ball in bottom-right corner with WeChat group icon and "交流群" text
+    - Show QR code on hover with hint text
+    - Preserve image aspect ratio
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [x] 8.3 Write property test for image aspect ratio
+    - **Property 7: Image Aspect Ratio Preservation**
+    - **Validates: Requirements 6.3**
+
+- [x] 9. Integrate all components in App
+  - [x] 9.1 Create App layout
+    - Implement single-screen layout with all components
+    - Wire up state management between components
+    - _Requirements: 8.2_
+  - [x] 9.2 Connect algorithm state to visualization
+    - Sync step changes with CodePanel and Visualization
+    - _Requirements: 3.2, 5.2_
+
+- [x] 10. Set up GitHub Actions for deployment
+  - [x] 10.1 Create GitHub Actions workflow
+    - Create .github/workflows/deploy.yml
+    - Configure build and deploy to GitHub Pages
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [x] 10.2 Configure Vite for GitHub Pages
+    - Set base path for GitHub Pages deployment
+    - _Requirements: 7.2_
+
+- [x] 11. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
