@@ -14,7 +14,7 @@ interface VisualizationProps {
 
 const NODE_WIDTH = 50;
 const NODE_HEIGHT = 36;
-const NODE_SPACING = 110; // 增大间距，让链表更清晰
+const NODE_SPACING = 140; // 增大节点间距，让链表更清晰
 
 // 计算链表长度
 function getListLength(head: ListNode | null): number {
@@ -83,9 +83,10 @@ export function Visualization({
     });
 
     const startX = 100;
-    const l1Y = 60;
-    const l2Y = 160;  // 增大行间距
-    const mergedY = 280; // 增大行间距
+    const rowSpacing = 220; // 增大行间距
+    const l1Y = 70;
+    const l2Y = l1Y + rowSpacing;  // 70 + 220 = 290
+    const mergedY = l2Y + rowSpacing; // 290 + 220 = 510
 
     // 绘制标签和统计信息
     drawLabelWithStats(svg, 20, l1Y, 'L1', '#ffa116', l1Length, pointers.p1);
@@ -96,19 +97,14 @@ export function Visualization({
     const isL1Completed = pointers.p1 === null;
     const isL2Completed = pointers.p2 === null;
     
-    // 绘制 L1 链表（如果L1已经遍历完，整个链表变灰）
-    drawLinkedListHorizontal(svg, l1, startX, l1Y, '#ffa116', 'orange', pointers.p1, highlightedNodeId, pointers.current === 'l1', 'L1', isL1Completed);
+    // 绘制 L1 链表（如果L1已经遍历完，整个链表变灰），并传入比较信息
+    drawLinkedListHorizontal(svg, l1, startX, l1Y, '#ffa116', 'orange', pointers.p1, highlightedNodeId, pointers.current === 'l1', 'L1', isL1Completed, currentL1Val, currentL2Val);
     
-    // 绘制 L2 链表（如果L2已经遍历完，整个链表变灰）
-    drawLinkedListHorizontal(svg, l2, startX, l2Y, '#10b981', 'green', pointers.p2, highlightedNodeId, pointers.current === 'l2', 'L2', isL2Completed);
+    // 绘制 L2 链表（如果L2已经遍历完，整个链表变灰），并传入比较信息
+    drawLinkedListHorizontal(svg, l2, startX, l2Y, '#10b981', 'green', pointers.p2, highlightedNodeId, pointers.current === 'l2', 'L2', isL2Completed, currentL2Val, currentL1Val);
     
     // 绘制合并结果链表（带来源颜色）
     drawMergedListHorizontal(svg, merged, startX, mergedY, highlightedNodeId);
-    
-    // 绘制比较框
-    if (pointers.p1 !== null && pointers.p2 !== null && currentL1Val !== null && currentL2Val !== null) {
-      drawComparisonBox(svg, currentL1Val, currentL2Val, l1Y, l2Y, startX, pointers.p1, pointers.p2);
-    }
 
     // 绘制比较指示器和数据流动箭头
     if (pointers.p1 !== null && pointers.p2 !== null && l1 && l2) {
@@ -211,7 +207,9 @@ function drawLinkedListHorizontal(
   highlightedNodeId: string | null,
   isCurrentList: boolean,
   listName: string = '',
-  isListCompleted: boolean = false
+  isListCompleted: boolean = false,
+  myVal: number | null = null,
+  otherVal: number | null = null
 ) {
   if (!head) {
     svg.append('text')
@@ -323,6 +321,37 @@ function drawLinkedListHorizontal(
         .attr('font-size', '12px')
         .attr('font-weight', 'bold')
         .text(pointerName);
+      
+      // 在节点旁边绘制比较标签（当两个值都存在时）- 无边框，小字体
+      if (myVal !== null && otherVal !== null) {
+        const isWinner = listName === 'L1' ? myVal <= otherVal : myVal < otherVal;
+        const comparisonText = listName === 'L1' 
+          ? `${myVal} ${myVal <= otherVal ? '≤' : '>'} ${otherVal}`
+          : `${myVal} ${myVal < otherVal ? '<' : '≥'} ${otherVal}`;
+        
+        // 标签位置
+        const labelX = x + NODE_WIDTH + 10;
+        
+        // 比较表达式 - 无边框，小字体
+        svg.append('text')
+          .attr('x', labelX)
+          .attr('y', y - 2)
+          .attr('text-anchor', 'start')
+          .attr('fill', isWinner ? '#22c55e' : '#9ca3af')
+          .attr('font-size', '9px')
+          .text(comparisonText);
+        
+        // 结果文字
+        if (isWinner) {
+          svg.append('text')
+            .attr('x', labelX)
+            .attr('y', y + 10)
+            .attr('text-anchor', 'start')
+            .attr('fill', '#22c55e')
+            .attr('font-size', '9px')
+            .text(`✓ ${listName}`);
+        }
+      }
     }
   });
 }
@@ -424,69 +453,6 @@ function drawMergedListHorizontal(
         .text('null');
     }
   });
-}
-
-function drawComparisonBox(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  l1Val: number,
-  l2Val: number,
-  l1Y: number,
-  l2Y: number,
-  startX: number,
-  _p1Index: number,
-  _p2Index: number
-) {
-  // 比较框固定在两个链表之间的右侧位置
-  // 使用固定的 X 位置，避免遮挡链表节点
-  const boxX = startX + 3 * NODE_SPACING + NODE_WIDTH + 60; // 固定在第3个节点之后
-  const boxY = (l1Y + l2Y) / 2;
-  const boxWidth = 120;
-  const boxHeight = 70;
-  
-  // 比较框背景
-  svg.append('rect')
-    .attr('x', boxX)
-    .attr('y', boxY - boxHeight / 2)
-    .attr('width', boxWidth)
-    .attr('height', boxHeight)
-    .attr('rx', 8)
-    .attr('fill', '#252538')
-    .attr('stroke', '#ef4444')
-    .attr('stroke-width', 2)
-    .attr('opacity', 0.95);
-  
-  // 标题
-  svg.append('text')
-    .attr('x', boxX + boxWidth / 2)
-    .attr('y', boxY - boxHeight / 2 + 16)
-    .attr('text-anchor', 'middle')
-    .attr('fill', '#ef4444')
-    .attr('font-size', '10px')
-    .attr('font-weight', 'bold')
-    .text('⚡ 比较中');
-  
-  // 比较表达式
-  const winner = l1Val <= l2Val ? 'L1' : 'L2';
-  const comparison = `${l1Val} ${l1Val <= l2Val ? '≤' : '>'} ${l2Val}`;
-  
-  svg.append('text')
-    .attr('x', boxX + boxWidth / 2)
-    .attr('y', boxY + 2)
-    .attr('text-anchor', 'middle')
-    .attr('fill', '#fff')
-    .attr('font-size', '14px')
-    .attr('font-weight', 'bold')
-    .text(comparison);
-  
-  // 结果
-  svg.append('text')
-    .attr('x', boxX + boxWidth / 2)
-    .attr('y', boxY + boxHeight / 2 - 8)
-    .attr('text-anchor', 'middle')
-    .attr('fill', '#22c55e')
-    .attr('font-size', '11px')
-    .attr('font-weight', 'bold')
-    .text(`选择 ${winner}`);
 }
 
 function drawComparisonIndicator(
