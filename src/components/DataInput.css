@@ -1,0 +1,128 @@
+.data-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 1px solid #2d3748;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.input-label {
+  color: #ffa116;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-width: 24px;
+}
+
+.input-field {
+  width: 140px;
+  padding: 6px 10px;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  background: #2d2d3d;
+  color: #fff;
+  font-size: 0.875rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #ffa116;
+  box-shadow: 0 0 0 2px rgba(255, 161, 22, 0.2);
+}
+
+.input-field.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.error-tip {
+  position: absolute;
+  top: 100%;
+  left: 30px;
+  font-size: 0.75rem;
+  color: #ef4444;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.apply-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  background: #ffa116;
+  color: #1a1a2e;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.apply-btn:hover {
+  background: #ffb84d;
+  transform: translateY(-1px);
+}
+
+.apply-btn:active {
+  transform: translateY(0);
+}
+
+.random-btn {
+  padding: 6px 14px;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  background: #2d2d3d;
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.random-btn:hover {
+  background: #3d3d4d;
+  border-color: #ffa116;
+}
+
+.presets-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.presets-label {
+  color: #a0aec0;
+  font-size: 0.8rem;
+}
+
+.preset-btn {
+  padding: 4px 10px;
+  border: 1px solid #3d3d4d;
+  border-radius: 4px;
+  background: transparent;
+  color: #a0aec0;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+  background: #3d3d4d;
+  color: #fff;
+  border-color: #ffa116;
+}

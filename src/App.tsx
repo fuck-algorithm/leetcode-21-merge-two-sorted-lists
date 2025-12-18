@@ -1,4 +1,5 @@
 import { Header } from './components/Header';
+import { DataInput } from './components/DataInput';
 import { CodePanel } from './components/CodePanel';
 import { ControlPanel } from './components/ControlPanel';
 import { Visualization } from './components/Visualization';
@@ -18,7 +19,8 @@ function App() {
     goToNext,
     goToPrevious,
     togglePlayPause,
-    reset
+    reset,
+    setInputArrays
   } = useAlgorithmState([1, 2, 4], [1, 3, 4]);
 
   return (
@@ -28,6 +30,7 @@ function App() {
         leetcodeUrl={LEETCODE_URL}
         githubUrl={GITHUB_URL}
       />
+      <DataInput onDataChange={setInputArrays} />
       
       <main className="main-content">
         <div className="left-panel">
