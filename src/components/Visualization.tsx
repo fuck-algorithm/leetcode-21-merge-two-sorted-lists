@@ -92,14 +92,18 @@ export function Visualization({
     drawLabelWithStats(svg, 20, l2Y, 'L2', '#10b981', l2Length, pointers.p2);
     drawLabelWithStats(svg, 20, mergedY, '结果', '#8b5cf6', mergedLength, null);
 
-    // 绘制 L1 链表
-    drawLinkedListHorizontal(svg, l1, startX, l1Y, '#ffa116', 'orange', pointers.p1, highlightedNodeId, pointers.current === 'l1', 'L1');
+    // 判断是否合并完成（两个指针都为null表示合并完成）
+    const isL1Completed = pointers.p1 === null;
+    const isL2Completed = pointers.p2 === null;
     
-    // 绘制 L2 链表
-    drawLinkedListHorizontal(svg, l2, startX, l2Y, '#10b981', 'green', pointers.p2, highlightedNodeId, pointers.current === 'l2', 'L2');
+    // 绘制 L1 链表（如果L1已经遍历完，整个链表变灰）
+    drawLinkedListHorizontal(svg, l1, startX, l1Y, '#ffa116', 'orange', pointers.p1, highlightedNodeId, pointers.current === 'l1', 'L1', isL1Completed);
     
-    // 绘制合并结果链表
-    drawLinkedListHorizontal(svg, merged, startX, mergedY, '#8b5cf6', 'purple', null, highlightedNodeId, false, '结果');
+    // 绘制 L2 链表（如果L2已经遍历完，整个链表变灰）
+    drawLinkedListHorizontal(svg, l2, startX, l2Y, '#10b981', 'green', pointers.p2, highlightedNodeId, pointers.current === 'l2', 'L2', isL2Completed);
+    
+    // 绘制合并结果链表（带来源颜色）
+    drawMergedListHorizontal(svg, merged, startX, mergedY, highlightedNodeId);
     
     // 绘制比较框
     if (pointers.p1 !== null && pointers.p2 !== null && currentL1Val !== null && currentL2Val !== null) {
@@ -206,7 +210,8 @@ function drawLinkedListHorizontal(
   pointerIndex: number | null,
   highlightedNodeId: string | null,
   isCurrentList: boolean,
-  listName: string = ''
+  listName: string = '',
+  isListCompleted: boolean = false
 ) {
   if (!head) {
     svg.append('text')
@@ -232,6 +237,8 @@ function drawLinkedListHorizontal(
     const isPointed = pointerIndex === index;
     const isBeingCompared = isCurrentList && isPointed;
     const isProcessed = pointerIndex !== null && index < pointerIndex;
+    // 如果整个链表已完成遍历，所有节点都显示为灰色
+    const isGrayed = isListCompleted || isProcessed;
 
     // 绘制节点矩形
     const rect = svg.append('rect')
@@ -240,10 +247,10 @@ function drawLinkedListHorizontal(
       .attr('width', NODE_WIDTH)
       .attr('height', NODE_HEIGHT)
       .attr('rx', 6)
-      .attr('fill', isHighlighted ? color : isProcessed ? '#1a1a2e' : '#2d2d3d')
-      .attr('stroke', isBeingCompared ? '#ef4444' : isProcessed ? '#4b5563' : color)
+      .attr('fill', isHighlighted ? color : isGrayed ? '#1a1a2e' : '#2d2d3d')
+      .attr('stroke', isBeingCompared ? '#ef4444' : isGrayed ? '#4b5563' : color)
       .attr('stroke-width', isBeingCompared ? 3 : 2)
-      .attr('opacity', isProcessed ? 0.5 : 1);
+      .attr('opacity', isGrayed ? 0.5 : 1);
 
     if (isHighlighted || isBeingCompared) {
       rect.style('filter', `drop-shadow(0 0 8px ${isBeingCompared ? '#ef4444' : color})`);
@@ -254,10 +261,10 @@ function drawLinkedListHorizontal(
       .attr('x', x + NODE_WIDTH / 2)
       .attr('y', y + 5)
       .attr('text-anchor', 'middle')
-      .attr('fill', isHighlighted ? '#1a1a2e' : isProcessed ? '#6b7280' : '#fff')
+      .attr('fill', isHighlighted ? '#1a1a2e' : isGrayed ? '#6b7280' : '#fff')
       .attr('font-size', '16px')
       .attr('font-weight', 'bold')
-      .attr('opacity', isProcessed ? 0.5 : 1)
+      .attr('opacity', isGrayed ? 0.5 : 1)
       .text(node.val);
 
     // 绘制索引标签
@@ -276,10 +283,10 @@ function drawLinkedListHorizontal(
         .attr('y1', y)
         .attr('x2', x + NODE_SPACING - 4)
         .attr('y2', y)
-        .attr('stroke', isProcessed ? '#4b5563' : color)
+        .attr('stroke', isGrayed ? '#4b5563' : color)
         .attr('stroke-width', 2)
-        .attr('opacity', isProcessed ? 0.5 : 1)
-        .attr('marker-end', `url(#arrow-${isProcessed ? 'gray' : arrowColor})`);
+        .attr('opacity', isGrayed ? 0.5 : 1)
+        .attr('marker-end', `url(#arrow-${isGrayed ? 'gray' : arrowColor})`);
     } else {
       // 绘制 null 指针
       svg.append('line')
@@ -316,6 +323,105 @@ function drawLinkedListHorizontal(
         .attr('font-size', '12px')
         .attr('font-weight', 'bold')
         .text(pointerName);
+    }
+  });
+}
+
+// 绘制合并结果链表，节点颜色根据来源显示
+function drawMergedListHorizontal(
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  head: ListNode | null,
+  startX: number,
+  y: number,
+  highlightedNodeId: string | null
+) {
+  if (!head) {
+    svg.append('text')
+      .attr('x', startX)
+      .attr('y', y + 5)
+      .attr('fill', '#6b7280')
+      .attr('font-size', '14px')
+      .attr('font-style', 'italic')
+      .text('空链表');
+    return;
+  }
+
+  const nodes: ListNode[] = [];
+  let current: ListNode | null = head;
+  while (current) {
+    nodes.push(current);
+    current = current.next;
+  }
+
+  nodes.forEach((node, index) => {
+    const x = startX + index * NODE_SPACING;
+    const isHighlighted = node.id === highlightedNodeId;
+    
+    // 根据节点id前缀确定来源颜色
+    const isFromL1 = node.id.startsWith('l1-');
+    const sourceColor = isFromL1 ? '#ffa116' : '#10b981'; // 橙色(L1) 或 绿色(L2)
+    const arrowColor = isFromL1 ? 'orange' : 'green';
+
+    // 绘制节点矩形
+    const rect = svg.append('rect')
+      .attr('x', x)
+      .attr('y', y - NODE_HEIGHT / 2)
+      .attr('width', NODE_WIDTH)
+      .attr('height', NODE_HEIGHT)
+      .attr('rx', 6)
+      .attr('fill', isHighlighted ? sourceColor : '#2d2d3d')
+      .attr('stroke', sourceColor)
+      .attr('stroke-width', 2);
+
+    if (isHighlighted) {
+      rect.style('filter', `drop-shadow(0 0 8px ${sourceColor})`);
+    }
+
+    // 绘制节点值
+    svg.append('text')
+      .attr('x', x + NODE_WIDTH / 2)
+      .attr('y', y + 5)
+      .attr('text-anchor', 'middle')
+      .attr('fill', isHighlighted ? '#1a1a2e' : '#fff')
+      .attr('font-size', '16px')
+      .attr('font-weight', 'bold')
+      .text(node.val);
+
+    // 绘制索引标签
+    svg.append('text')
+      .attr('x', x + NODE_WIDTH / 2)
+      .attr('y', y + NODE_HEIGHT / 2 + 14)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#6b7280')
+      .attr('font-size', '10px')
+      .text(`[${index}]`);
+
+    // 绘制指针箭头到下一个节点
+    if (index < nodes.length - 1) {
+      svg.append('line')
+        .attr('x1', x + NODE_WIDTH)
+        .attr('y1', y)
+        .attr('x2', x + NODE_SPACING - 4)
+        .attr('y2', y)
+        .attr('stroke', sourceColor)
+        .attr('stroke-width', 2)
+        .attr('marker-end', `url(#arrow-${arrowColor})`);
+    } else {
+      // 绘制 null 指针
+      svg.append('line')
+        .attr('x1', x + NODE_WIDTH)
+        .attr('y1', y)
+        .attr('x2', x + NODE_WIDTH + 20)
+        .attr('y2', y)
+        .attr('stroke', '#6b7280')
+        .attr('stroke-width', 2);
+      
+      svg.append('text')
+        .attr('x', x + NODE_WIDTH + 25)
+        .attr('y', y + 4)
+        .attr('fill', '#6b7280')
+        .attr('font-size', '12px')
+        .text('null');
     }
   });
 }
