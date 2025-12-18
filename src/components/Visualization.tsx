@@ -515,26 +515,32 @@ function drawComparisonIndicator(
   const winnerY = winner === 'l1' ? l1Y : l2Y;
   const winnerColor = winner === 'l1' ? '#ffa116' : '#10b981';
   
-  // 计算结果链表的目标位置
+  // 计算结果链表的目标位置（结果链表中下一个节点的位置）
   const targetX = startX + mergedLength * NODE_SPACING + NODE_WIDTH / 2;
 
   if (winner) {
-    // 流动箭头 - 从胜者节点到结果链表的曲线
-    const controlX = winnerX + (targetX - winnerX) * 0.3;
-    const controlY = mergedY - 40;
+    // 流动箭头 - 从胜者节点垂直向下指向结果链表
+    // 箭头起点：胜者节点底部
+    const arrowStartY = winnerY + NODE_HEIGHT / 2 + 5;
+    // 箭头终点：结果链表目标节点顶部
+    const arrowEndY = mergedY - NODE_HEIGHT / 2 - 8;
     
-    // 主流动路径 - 虚线箭头
+    // 计算中间转折点的Y坐标（在结果链表上方一定距离）
+    const turnY = mergedY - NODE_HEIGHT / 2 - 35;
+    
+    // 绘制折线路径：从源节点向下 -> 水平移动到目标X -> 垂直向下到结果链表
     svg.append('path')
-      .attr('d', `M ${winnerX} ${winnerY + NODE_HEIGHT/2 + 5} 
-                  Q ${controlX} ${controlY} 
-                  ${targetX} ${mergedY - NODE_HEIGHT/2 - 8}`)
+      .attr('d', `M ${winnerX} ${arrowStartY} 
+                  L ${winnerX} ${turnY}
+                  L ${targetX} ${turnY}
+                  L ${targetX} ${arrowEndY}`)
       .attr('fill', 'none')
       .attr('stroke', winnerColor)
       .attr('stroke-width', 2)
       .attr('stroke-dasharray', '5,3')
       .attr('opacity', 0.7);
     
-    // 箭头头部
+    // 箭头头部 - 指向正下方
     const arrowSize = 6;
     svg.append('polygon')
       .attr('points', `
